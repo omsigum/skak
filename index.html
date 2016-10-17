@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>can you win ? </title>
+	<link rel="stylesheet" type="text/css" href="css/chess.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+</head>
+<body>
+<div id="left">
+	<h2 id="turn">Your turn</h2>
+	<!--<h2>Enter your move</h2>-->
+	<div id="chessBoard1"></div>
+
+	<!-- Some textbox to modify the board.-->
+
+	<input name="move" id="movefield">
+	<button id="play">Submit the move.</button>
+	<P>This site accepts SAN notations. more can be read about that here : <a href="https://en.wikipedia.org/wiki/Algebraic_notation_(chess)">Wikipedia</a>. doing your peaces initial position and then the end postition does also work. f.e. 'e2e4'. Great luck.</P>
+</div>
+<hr>
+<div id="right">
+	<!--History and as much as we can do.-->
+	<ol id="history">
+		<h3>Moves of the game</h3>
+		<li>W Pe4</li><!-- Just an idea how i should look. -->
+	</ol>
+</div>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="js/ChessFen.js"></script>
+<script type="text/javascript" src="js/chess.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+</body>
+</html>
