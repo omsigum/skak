@@ -114,6 +114,13 @@ DHTMLGoodies.ChessFen.prototype = {
 		var boardOuter = document.createElement('DIV');	
 		boardOuter.className = 'ChessBoard' + this.squareSize;
 		boardOuter.style.position = 'relative';
+		//asdf
+		boardOuter.addEventListener("drop",function(event){
+			drop(event);
+		});
+		boardOuter.addEventListener("dragover",function(event){
+			allowDrop(event)
+		});
 		
 		var board = document.createElement('DIV');		
 		board.className = 'ChessBoardInner' + this.squareSize;
@@ -182,7 +189,6 @@ DHTMLGoodies.ChessFen.prototype = {
 				piece.style.position = 'absolute';
 				piece.style.left = boardPos.x + 'px';
 				piece.style.top = boardPos.y + 'px';				
-			
 				if(character.match(/[A-Z]/)){	/* White pieces */						
 					var color = 'w';
 				}
@@ -191,9 +197,15 @@ DHTMLGoodies.ChessFen.prototype = {
 				}
 				var img = document.createElement('IMG');
 				img.src = this.imageFolder + this.pieceType + this.squareSize  + color + character.toLowerCase() + '.png';				
+				// make all of the images dragable 
+				piece.draggable = 'true';
+				piece.addEventListener("dragstart",function(event){
+					drag(event);
+				});
 				self.status = this.imageFolder + this.pieceType + this.squareSize  + color + character.toLowerCase() + '.png';;
 				piece.appendChild(img);
 				piece.className = 'ChessPiece' + this.squareSize;
+				// make it so that you can drop the image anywhere. verifycation of the drop will be done later 
 				boardEl.appendChild(piece);
 				currentCol++;
 				if(this.isOldMSIE && !this.isOpera)this.correctPng(img);			
