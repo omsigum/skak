@@ -1,29 +1,3 @@
-/************************************************************************************************************
-Chess Fen Viewer
-Copyright (C) 2007  DTHMLGoodies.com, Alf Magne Kalleland
-
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
-Dhtmlgoodies.com., hereby disclaims all copyright interest in this script
-written by Alf Magne Kalleland.
-
-Alf Magne Kalleland, 2007
-Owner of DHTMLgoodies.com
-
-
-************************************************************************************************************/	
 
 var DHTMLGoodies = new Object();
 if(!String.trim)String.prototype.trim = function() { return this.replace(/^\s+|\s+$/, ''); };
@@ -43,7 +17,7 @@ DHTMLGoodies.ChessFen = function(props)
 	var pieceType;
 	
 	this.pieceType = 'cases';
-	this.squareSize = 45;
+	this.squareSize = 500;
 	this.isOldMSIE = (navigator.userAgent.toLowerCase().match(/msie\s[0-6]/gi))?true:false;
 	this.isOpera = (navigator.userAgent.toLowerCase().indexOf('opera')>=0)?true:false;
 
@@ -51,7 +25,7 @@ DHTMLGoodies.ChessFen = function(props)
 	this.parentRef = document.body;
 	this.imageFolder = 'images/';
 	this.boardLabels = true;
-	this.flipBoardWhenBlackToMove = true;
+	this.flipBoardWhenBlackToMove = false;
 	
 	if(props)this.__setInitProps(props);
 	this.init();
@@ -205,6 +179,7 @@ DHTMLGoodies.ChessFen.prototype = {
 				self.status = this.imageFolder + this.pieceType + this.squareSize  + color + character.toLowerCase() + '.png';;
 				piece.appendChild(img);
 				piece.className = 'ChessPiece' + this.squareSize;
+
 				// make it so that you can drop the image anywhere. verifycation of the drop will be done later 
 				boardEl.appendChild(piece);
 				currentCol++;

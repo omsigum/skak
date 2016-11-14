@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>can you win ? </title>
+	<title>Chess</title>
 	<link rel="stylesheet" type="text/css" href="css/chess.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
@@ -11,20 +11,20 @@
 	<!--<h2>Enter your move</h2>-->
 	<div id="chessBoard1"></div>
 
-	<!-- Some textbox to modify the board.-->
-
 	<input name="move" id="movefield">
 	<button id="play">Submit the move.</button>
 	<P>This site accepts SAN notations. more can be read about that here : <a href="https://en.wikipedia.org/wiki/Algebraic_notation_(chess)">Wikipedia</a>. doing your peaces initial position and then the end postition does also work. f.e. 'e2e4'. Great luck.</P>
+	<input id="timec" type="number"><span>The time is how long the computer thinks about what it is going to do(default is 20)</span><button id="settime">update the time</button>
 </div>
 <hr>
 <div id="right">
 	<!--History and as much as we can do.-->
 	<h3>Moves of the game, first letter is color. Followed by from - to</h3>
 	<ol id="history">
-		<h4>Moves of the game</h4>
-		<li>W Pe4</li><!-- Just an idea how i should look. -->
+		<h4>Moves of the game(press any one of the positions and get what the computer would have or would do)</h4>
 	</ol>
+	<p>the move you requested :</p>
+	<span id="bestmove"> </span>
 </div>
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script type="text/javascript" src="js/ChessFen.js"></script>

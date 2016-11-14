@@ -3,6 +3,7 @@ FEN=$1
 echo $FEN
 ( 
 echo "position fen $FEN" 
-echo "go depth 20"
-sleep 20
+echo "go depth $2"
+sleep $2
 ) | stockfish
+exit 0

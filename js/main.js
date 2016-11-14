@@ -17,14 +17,14 @@ var drop = function(event){
 	event.preventDefault(); // allow the element to drop
 	var xdiff = startx - event.clientX;
 	var ydiff = starty - event.clientY;
-	var xblock = Math.floor((xdiff / 45) + 0.5) * -1;
-	var yblock = Math.floor((ydiff / 45) + 0.5);
+	var xblock = Math.floor((xdiff / model.squareSize) + 0.5) * -1;
+	var yblock = Math.floor((ydiff / model.squareSize) + 0.5);
 	
 	var pfromright = srcelement.parentElement.style.left;
-	var countfromright = (pfromright.substring(0,pfromright.length - 2)) / 45;
+	var countfromright = (pfromright.substring(0,pfromright.length - 2)) / model.squareSize;
 
 	var pfromtop = srcelement.parentElement.style.top;
-	var countfromtop = 8 - ((pfromtop.substr(0,pfromtop.length - 2 )) / 45); // the -8 is to reverte the number. 8 is at the bottom but is suppose to be at the top
+	var countfromtop = 8 - ((pfromtop.substr(0,pfromtop.length - 2 )) / model.squareSize); // the -8 is to reverte the number. 8 is at the bottom but is suppose to be at the top
 	var from = letters[countfromright] + countfromtop;
 	var xto = countfromright + xblock; // add the "move" value, how far did he go in the x direction
 	var yto = countfromtop + yblock;   // same for the y,
@@ -32,10 +32,12 @@ var drop = function(event){
 	view.move(from + to); // this is the same function as takes in the SAN moves, so if the move is valid it is accepted and it triggers a refresh of the board. looks good. 
 }
 var model = {
+	squareSize: 60,
 	chess : null,
 	playermove: true,
 	history: new Array(),
-	chessObj: new DHTMLGoodies.ChessFen(),
+	time: 20,
+	chessObj: new DHTMLGoodies.ChessFen({squareSize: 60}),
 	historylist : null,
 	init : function(){
 		// initalize a new chess game. 
@@ -59,9 +61,11 @@ var model = {
 			octapus.refresh();
 			// set the game to the computer's turn. 
 			this.playermove = false;
-			this.getbestmove();
+			this.getbest(octapus.currentfen());
 			// turn the turn indicator red. 
-			
+			if(this.chess.game_over()){
+				octapus.gameover();
+			}
 			return true;
 		}
 		else{
@@ -69,18 +73,31 @@ var model = {
 			return false;
 		}
 	},
-	getbestmove: function(){
-	// this will stay empty for some time. 
+	getbest: function(fen){
 		$.ajax({
 		  type: "POST",
 		  url: "http://localhost:3000/bakendi", 
 		  crossDomain: true,
 		  data: {
-		  	fen: octapus.currentfen()
+		  	fen: fen,
+			time: model.time
 		  },
 		  success: function(response){
-		  	console.log(response);
-		  	model.pcomve(response);
+			  model.pcomve(response);
+		  }
+		});
+	},
+	getbestmove: function(reqstedfen){
+		$.ajax({
+		  type: "POST",
+		  url: "http://localhost:3000/bakendi", 
+		  crossDomain: true,
+		  data: {
+		  	fen: reqstedfen,
+			time: model.time
+		  },
+		  success: function(response){
+			  view.showbestmove(response);
 		  }
 		});
 	},
@@ -91,6 +108,7 @@ var model = {
 		var play = response.split(' ')[1];
 		console.log(play + " the move.")
 		this.chess.move(play, {sloppy: true});
+		this.history.push(this.chess.fen());
 		octapus.refresh();
 		this.playermove = true;
 	},
@@ -100,6 +118,11 @@ var model = {
 	
 }
 var octapus = {
+	gameover: function(){
+		// freeze the board and make it aware that the game has ended. 
+		model.playermove = false; // player not able to move.
+		alert("Game over");			
+	},
 	currentfen: function(){
 		return model.fen();
 	},
@@ -113,12 +136,6 @@ var octapus = {
 	getgameobj: function(){
 		return model.chessObj;
 	},
-	movepc: function(response){
-		// response in style. bestmove yk zs ponder rt aw
-		// remove ponder from the back. 
-
-		// method is in the model. perhaps dosent have to be hereþ
-	},
 	getListelement(){
 		return model.historylist;
 	}
@@ -131,6 +148,21 @@ var view = {
 		document.getElementById('play').addEventListener('click',function(){
 			view.move("");
 		})
+		document.getElementById("settime").addEventListener("click",function(){
+			// update the time. 
+			element = document.getElementById("timec");
+			model.time = element.value;
+			console.log(element.value);
+			element.value = 0;
+			alert("updated");
+		})
+	},
+	showbestmove: function(blabla){
+		console.log(blabla);
+		var thing = document.getElementById("bestmove");
+		thing.innerHTML = blabla;
+		
+		alert("bestmove updated.");
 	},
 	move: function(move){
 			// user submited a move. 
@@ -140,31 +172,41 @@ var view = {
 			if (!octapus.moveaplayer(move)) {
 				alert("move was not accpepted");
 			}
-			// move.value = ""; // clear the field. 
+			var move = document.getElementById('movefield').value = "";
 	},
 	render: function(){
-		// get the side moving and update the moving status. 
 		var colortomove = model.getcolor();
 		var text = "";
-		if(colortomove == "b")
+		if(model.chess.game_over())
+			text = "Game over";
+		else if(colortomove == "b")
 			text = "Black to move";
 		else
 			text = "White to move - Your turn"
 		document.getElementById("turn").innerHTML = text;
-
-		
-		console.log(octapus.currentfen() + octapus.getgameobj())
-		octapus.getgameobj().loadFen(octapus.currentfen().replace(' b ', ' w '),'chessBoard1'); // the string replace is here so that the fen is modified to a point that the chess board is always turned to the user. (the chessFen drawer is for forums and has to be slightly modified to fir my needs.)
+	
+		octapus.getgameobj().loadFen(octapus.currentfen(),'chessBoard1'); // the string replace is here so that the fen is modified to a point that the chess board is always turned to the user. (the chessFen drawer is for forums and has to be slightly modified to fir my needs.)
 		// append the history into the column. 
 		var chessHistory = model.getHistory();
-		console.log(chessHistory);
-		var outputlist = "";
-		for (var i = 0; i < chessHistory.length; i++) {
-
-			outputlist += "<li>" + chessHistory[i].color + chessHistory[i].from + chessHistory[i].to + "</li>" ;
-			// -> [{ color: 'w', from: 'e2', to: 'e4', flags: 'b', piece: 'p', san: 'e4' },
+		if(chessHistory.length != 0){
+			chessboard =  new DHTMLGoodies.ChessFen({squareSize: 30});
+			var outputdiv = document.createElement("div");
+			outputdiv.id = "chessboard2" + chessHistory.length;
+			var ouputli = document.createElement("li");
+			var ouputlicon = document.createTextNode(chessHistory[chessHistory.length - 1].color + chessHistory[chessHistory.length - 1].from + chessHistory[chessHistory.length - 1].to);
+			ouputli.appendChild(ouputlicon);
+			ouputli.appendChild(outputdiv);	
+			octapus.getListelement().appendChild(ouputli);
+			let fenpostition  = model.history.length -1;
+			ouputli.addEventListener("click",function(event){
+				// function for triggering a diagnostic of the game at that position.
+				console.log("hey");
+				console.log(model.history[fenpostition]);
+				console.log(fenpostition);
+				model.getbestmove(model.history[fenpostition]);
+			});
+			chessboard.loadFen(octapus.currentfen(), "chessboard2" + chessHistory.length);
 		}
-		octapus.getListelement().innerHTML = outputlist;
 	}
 }
 model.init();
